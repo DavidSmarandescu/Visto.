@@ -1,0 +1,1201 @@
+{
+    "name": "Visto. (Resumen Diario)",
+    "flow": [
+        {
+            "id": 14,
+            "module": "datastore:SearchRecord",
+            "version": 1,
+            "parameters": {
+                "limit": 50,
+                "datastore": 140825,
+                "continueWhenNoRes": false
+            },
+            "mapper": {
+                "sort": [],
+                "filter": [],
+                "mappAbleLimit": ""
+            },
+            "metadata": {
+                "designer": {
+                    "x": -1132,
+                    "y": 235
+                },
+                "restore": {
+                    "parameters": {
+                        "datastore": {
+                            "label": "My data store"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "datastore",
+                        "type": "datastore",
+                        "label": "Data store",
+                        "required": true
+                    },
+                    {
+                        "name": "continueWhenNoRes",
+                        "type": "boolean",
+                        "label": "Continue the execution of the route even if the module returns no results"
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit"
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "filter",
+                        "type": "filter",
+                        "label": "Filter",
+                        "options": "rpc://datastore/1.15.3/RpcGetUDTKeys",
+                        "required": true
+                    },
+                    {
+                        "name": "sort",
+                        "spec": [
+                            {
+                                "name": "key",
+                                "type": "select",
+                                "label": "Key",
+                                "dynamic": true,
+                                "options": [],
+                                "required": true
+                            },
+                            {
+                                "name": "order",
+                                "type": "select",
+                                "label": "Order",
+                                "options": [
+                                    {
+                                        "label": "Ascending",
+                                        "value": 1
+                                    },
+                                    {
+                                        "label": "Descending",
+                                        "value": -1
+                                    }
+                                ],
+                                "required": true
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Sort"
+                    },
+                    {
+                        "name": "mappAbleLimit",
+                        "type": "uinteger",
+                        "label": "Mappable Limit"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "__IMTLENGTH__",
+                        "type": "uinteger",
+                        "label": "Total number of bundles"
+                    },
+                    {
+                        "name": "__IMTINDEX__",
+                        "type": "uinteger",
+                        "label": "Bundle order position"
+                    },
+                    {
+                        "name": "key",
+                        "type": "text",
+                        "label": "Key"
+                    },
+                    {
+                        "name": "data",
+                        "spec": [
+                            {
+                                "help": "",
+                                "name": "DATA",
+                                "type": "text",
+                                "label": null,
+                                "default": null,
+                                "required": false,
+                                "multiline": false
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Record"
+                    }
+                ],
+                "advanced": true
+            }
+        },
+        {
+            "id": 17,
+            "module": "builtin:BasicRouter",
+            "version": 1,
+            "mapper": null,
+            "metadata": {
+                "designer": {
+                    "x": -762,
+                    "y": 170
+                }
+            },
+            "routes": [
+                {
+                    "flow": [
+                        {
+                            "id": 8,
+                            "module": "google-email:executeEmailSearchQuery",
+                            "version": 4,
+                            "parameters": {
+                                "__IMTCONN__": 8708385
+                            },
+                            "filter": {
+                                "name": "",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{14.key}}",
+                                            "b": "Telegram Chat ID",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "q": "newer_than:1d -label:promotions -\"unsubscribe\" -\"dar de baja\"",
+                                "limit": "100",
+                                "format": "full",
+                                "filterType": "gmailSearch",
+                                "includeHtmlBody": false
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": -449,
+                                    "y": -99
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "format": {
+                                            "mode": "chose",
+                                            "label": "Full content"
+                                        },
+                                        "filterType": {
+                                            "mode": "chose",
+                                            "label": "Gmail filter"
+                                        },
+                                        "includeHtmlBody": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "google-email"
+                                            },
+                                            "label": "Mail Gmail"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:google-email",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "filterType",
+                                        "type": "select",
+                                        "label": "Filter type",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "simpleSearch",
+                                                "gmailSearch"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "format",
+                                        "type": "select",
+                                        "label": "Content format",
+                                        "validate": {
+                                            "enum": [
+                                                "full",
+                                                "raw",
+                                                "metadata",
+                                                "minimal"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "q",
+                                        "type": "text",
+                                        "label": "Query"
+                                    },
+                                    {
+                                        "name": "limit",
+                                        "type": "uinteger",
+                                        "label": "Limit",
+                                        "required": true,
+                                        "validate": {
+                                            "max": 500
+                                        }
+                                    },
+                                    {
+                                        "name": "includeHtmlBody",
+                                        "type": "boolean",
+                                        "label": "Include HTML body",
+                                        "required": true
+                                    }
+                                ],
+                                "interface": [
+                                    {
+                                        "name": "id",
+                                        "type": "text",
+                                        "label": "Message ID"
+                                    },
+                                    {
+                                        "name": "threadId",
+                                        "type": "text",
+                                        "label": "Thread ID"
+                                    },
+                                    {
+                                        "name": "internalDate",
+                                        "type": "date",
+                                        "label": "Date"
+                                    },
+                                    {
+                                        "name": "subject",
+                                        "type": "text",
+                                        "label": "Subject",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "fromName",
+                                        "type": "text",
+                                        "label": "From (name)",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "fromEmail",
+                                        "type": "text",
+                                        "label": "From (email)",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "to",
+                                        "spec": {
+                                            "spec": [
+                                                {
+                                                    "name": "name",
+                                                    "type": "text",
+                                                    "label": "Name"
+                                                },
+                                                {
+                                                    "name": "email",
+                                                    "type": "text",
+                                                    "label": "Email"
+                                                }
+                                            ],
+                                            "type": "collection"
+                                        },
+                                        "type": "array",
+                                        "label": "To",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "cc",
+                                        "spec": [
+                                            {
+                                                "name": "email",
+                                                "type": "email",
+                                                "label": "Email"
+                                            },
+                                            {
+                                                "name": "name",
+                                                "type": "text",
+                                                "label": "Name"
+                                            }
+                                        ],
+                                        "type": "array",
+                                        "label": "CC",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "bcc",
+                                        "spec": [
+                                            {
+                                                "name": "email",
+                                                "type": "email",
+                                                "label": "Email"
+                                            },
+                                            {
+                                                "name": "name",
+                                                "type": "text",
+                                                "label": "Name"
+                                            }
+                                        ],
+                                        "type": "array",
+                                        "label": "BCC",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "snippet",
+                                        "type": "text",
+                                        "label": "Snippet"
+                                    },
+                                    {
+                                        "name": "fullTextBody",
+                                        "type": "text",
+                                        "label": "Full text body",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "htmlBody",
+                                        "type": "text",
+                                        "label": "HTML body",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "hasAttachment",
+                                        "type": "boolean",
+                                        "label": "Has attachment",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "hasMedia",
+                                        "type": "boolean",
+                                        "label": "Has media",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "sysFolders",
+                                        "spec": [
+                                            {
+                                                "name": "id",
+                                                "type": "text",
+                                                "label": "System folder ID"
+                                            },
+                                            {
+                                                "name": "name",
+                                                "type": "text",
+                                                "label": "System folder name"
+                                            }
+                                        ],
+                                        "type": "array",
+                                        "label": "System folders"
+                                    },
+                                    {
+                                        "name": "categoryFolders",
+                                        "spec": [
+                                            {
+                                                "name": "id",
+                                                "type": "text",
+                                                "label": "Category folder ID"
+                                            },
+                                            {
+                                                "name": "name",
+                                                "type": "text",
+                                                "label": "Category folder name"
+                                            }
+                                        ],
+                                        "type": "array",
+                                        "label": "Category folders"
+                                    },
+                                    {
+                                        "name": "userLabelFolders",
+                                        "spec": [
+                                            {
+                                                "name": "id",
+                                                "type": "text",
+                                                "label": "User label folder ID"
+                                            },
+                                            {
+                                                "name": "name",
+                                                "type": "text",
+                                                "label": "User label folder name"
+                                            }
+                                        ],
+                                        "type": "array",
+                                        "label": "User label folders"
+                                    },
+                                    {
+                                        "name": "labelIds",
+                                        "spec": {
+                                            "type": "text"
+                                        },
+                                        "type": "array",
+                                        "label": "Message folder IDs"
+                                    },
+                                    {
+                                        "name": "headers",
+                                        "spec": [
+                                            {
+                                                "name": "Delivered-To",
+                                                "type": "text",
+                                                "label": "Delivered-To"
+                                            },
+                                            {
+                                                "name": "Received",
+                                                "type": "text",
+                                                "label": "Received"
+                                            },
+                                            {
+                                                "name": "Date",
+                                                "type": "text",
+                                                "label": "Date (header)"
+                                            },
+                                            {
+                                                "name": "X-Original-Sender",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "name": "Reply-To",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "name": "Subject",
+                                                "type": "text",
+                                                "label": "Subject"
+                                            },
+                                            {
+                                                "name": "From",
+                                                "type": "text",
+                                                "label": "From"
+                                            },
+                                            {
+                                                "name": "To",
+                                                "type": "text",
+                                                "label": "To"
+                                            },
+                                            {
+                                                "name": "Message-ID",
+                                                "type": "text",
+                                                "label": "Message-ID"
+                                            },
+                                            {
+                                                "name": "In-Reply-To",
+                                                "type": "text",
+                                                "label": "In-Reply-To"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Headers",
+                                        "condition": true
+                                    },
+                                    {
+                                        "name": "sizeEstimate",
+                                        "type": "number",
+                                        "label": "Size estimate"
+                                    },
+                                    {
+                                        "name": "historyId",
+                                        "type": "text",
+                                        "label": "History ID"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 3,
+                            "module": "util:TextAggregator",
+                            "version": 1,
+                            "parameters": {
+                                "feeder": 8,
+                                "rowSeparator": "\n"
+                            },
+                            "mapper": {
+                                "value": "De: {{8.headers.From}}\nAsunto: {{8.headers.Subject}}\nCuerpo: {{8.fullTextBody}}\n"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 61,
+                                    "y": -94
+                                },
+                                "restore": {
+                                    "extra": {
+                                        "feeder": {
+                                            "label": "Gmail - Search emails [8]"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "rowSeparator": {
+                                            "label": "New row"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "rowSeparator",
+                                        "type": "select",
+                                        "label": "Row separator",
+                                        "validate": {
+                                            "enum": [
+                                                "\n",
+                                                "\t",
+                                                "other"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "value",
+                                        "type": "text",
+                                        "label": "Text"
+                                    }
+                                ],
+                                "advanced": true
+                            }
+                        },
+                        {
+                            "id": 9,
+                            "module": "datastore:AddRecord",
+                            "version": 1,
+                            "parameters": {
+                                "datastore": 140825
+                            },
+                            "mapper": {
+                                "key": "{{14.key}}",
+                                "data": {
+                                    "DATA": "{{`3`}}"
+                                },
+                                "overwrite": true
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 396,
+                                    "y": -109
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "overwrite": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "datastore": {
+                                            "label": "My data store"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "datastore",
+                                        "type": "datastore",
+                                        "label": "Data store",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "key",
+                                        "type": "text",
+                                        "label": "Key"
+                                    },
+                                    {
+                                        "name": "overwrite",
+                                        "type": "boolean",
+                                        "label": "Overwrite an existing record",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "data",
+                                        "spec": [
+                                            {
+                                                "name": "DATA",
+                                                "type": "text",
+                                                "label": null
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Record"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 5,
+                            "module": "ai-tools:Ask",
+                            "version": 2,
+                            "parameters": {
+                                "model": "small",
+                                "makeConnectionId": 8420592
+                            },
+                            "mapper": {
+                                "input": "\"Eres un asistente ejecutivo impecable. Tu trabajo es leer este bloque de correos y devolver un resumen estructurado con los siguientes bloques enumerados: 1. Urgente, 2. Informativo, 3. Ignorable. Sé directo, en cada uno de los bloques usa una bulleted list. Añade emojis para visibilidad. Al final del mensaje desea un gran día\"\n{{`3`}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 725,
+                                    "y": -110
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "model": {
+                                            "mode": "chose",
+                                            "label": "SmallModel: gpt-5-nano. Reasoning: minimal. Efficiently handles long conversations and reasoning, delivering smart conclusions quickly",
+                                            "nested": []
+                                        },
+                                        "makeConnectionId": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "ai-provider"
+                                            },
+                                            "label": "Make's AI Provider (default)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "makeConnectionId",
+                                        "type": "account:ai-provider,openai-gpt-3,anthropic-claude,gemini-ai-q9zyjp,ai-agent-foundry-openai,ai-agent-foundry-non-openai,mistral-ai,cohere,groq,ai-agent-xai,amazon-bedrock,ai-agent-openai-compatible",
+                                        "label": "Connection",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "model",
+                                        "type": "select",
+                                        "label": "Model",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "input",
+                                        "type": "text",
+                                        "label": "Text",
+                                        "required": true
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 6,
+                            "module": "telegram:SendReplyMessage",
+                            "version": 1,
+                            "parameters": {
+                                "__IMTCONN__": 8691006
+                            },
+                            "mapper": {
+                                "text": "{{5.answer}}",
+                                "chatId": "{{9.key}}",
+                                "parseMode": "",
+                                "replyMarkup": "",
+                                "messageThreadId": "",
+                                "replyToMessageId": "",
+                                "replyMarkupAssembleType": "reply_markup_enter"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1057,
+                                    "y": -121
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "parseMode": {
+                                            "label": "Empty"
+                                        },
+                                        "disableNotification": {
+                                            "mode": "chose"
+                                        },
+                                        "replyMarkupAssembleType": {
+                                            "label": "Enter the Reply Markup"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "telegram"
+                                            },
+                                            "label": "Visto. Bot Connection"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:telegram",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "chatId",
+                                        "type": "text",
+                                        "label": "Chat ID",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "text",
+                                        "type": "text",
+                                        "label": "Text",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "messageThreadId",
+                                        "type": "number",
+                                        "label": "Message Thread ID"
+                                    },
+                                    {
+                                        "name": "parseMode",
+                                        "type": "select",
+                                        "label": "Parse Mode",
+                                        "validate": {
+                                            "enum": [
+                                                "Markdown",
+                                                "HTML"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "disableNotification",
+                                        "type": "boolean",
+                                        "label": "Disable Notifications"
+                                    },
+                                    {
+                                        "name": "disableWebPagePreview",
+                                        "type": "boolean",
+                                        "label": "Disable Link Previews"
+                                    },
+                                    {
+                                        "name": "replyToMessageId",
+                                        "type": "number",
+                                        "label": "Original Message ID"
+                                    },
+                                    {
+                                        "name": "replyMarkupAssembleType",
+                                        "type": "select",
+                                        "label": "Enter/Assemble the Reply Markup Field",
+                                        "validate": {
+                                            "enum": [
+                                                "reply_markup_enter",
+                                                "reply_markup_assemble"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "replyMarkup",
+                                        "type": "text",
+                                        "label": "Reply Markup"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 21,
+                            "module": "microsoft-email:listMessages",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": 8708325
+                            },
+                            "filter": {
+                                "name": "",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{14.key}}",
+                                            "b": "Telegram Chat ID",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "limit": "30",
+                                "folder": null,
+                                "search": "received:yesterday OR received:today"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": -417,
+                                    "y": 417
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "folder": {
+                                            "mode": "chose",
+                                            "path": []
+                                        },
+                                        "orderby": {
+                                            "mode": "chose",
+                                            "label": "Empty"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "azure"
+                                            },
+                                            "label": "Mail Outlook"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:azure",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "folder",
+                                        "type": "folder",
+                                        "label": "Mail Folder"
+                                    },
+                                    {
+                                        "name": "search",
+                                        "type": "text",
+                                        "label": "Search"
+                                    },
+                                    {
+                                        "name": "orderby",
+                                        "type": "select",
+                                        "label": "Order by",
+                                        "validate": {
+                                            "enum": [
+                                                "subject asc",
+                                                "subject desc",
+                                                "createdDateTime asc",
+                                                "createdDateTime desc",
+                                                "lastModifiedDateTime asc",
+                                                "lastModifiedDateTime desc",
+                                                "receivedDateTime asc",
+                                                "receivedDateTime desc"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "limit",
+                                        "type": "uinteger",
+                                        "label": "Limit"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 22,
+                            "module": "util:TextAggregator",
+                            "version": 1,
+                            "parameters": {
+                                "feeder": 21,
+                                "rowSeparator": "\n"
+                            },
+                            "mapper": {
+                                "value": "De: {{21.from.emailAddress.name}}\nAsunto: {{21.subject}}\nCuerpo: {{21.bodyPreview}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 77,
+                                    "y": 413
+                                },
+                                "restore": {
+                                    "extra": {
+                                        "feeder": {
+                                            "label": "Microsoft 365 Email (Outlook) - Search Emails [21]"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "rowSeparator": {
+                                            "label": "New row"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "rowSeparator",
+                                        "type": "select",
+                                        "label": "Row separator",
+                                        "validate": {
+                                            "enum": [
+                                                "\n",
+                                                "\t",
+                                                "other"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "value",
+                                        "type": "text",
+                                        "label": "Text"
+                                    }
+                                ],
+                                "advanced": true
+                            }
+                        },
+                        {
+                            "id": 23,
+                            "module": "datastore:AddRecord",
+                            "version": 1,
+                            "parameters": {
+                                "datastore": 140825
+                            },
+                            "mapper": {
+                                "key": "{{14.key}}",
+                                "data": {
+                                    "DATA": "{{`22`}}"
+                                },
+                                "overwrite": true
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 432,
+                                    "y": 404
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "overwrite": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "datastore": {
+                                            "label": "My data store"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "datastore",
+                                        "type": "datastore",
+                                        "label": "Data store",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "key",
+                                        "type": "text",
+                                        "label": "Key"
+                                    },
+                                    {
+                                        "name": "overwrite",
+                                        "type": "boolean",
+                                        "label": "Overwrite an existing record",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "data",
+                                        "spec": [
+                                            {
+                                                "name": "DATA",
+                                                "type": "text",
+                                                "label": null
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Record"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 24,
+                            "module": "ai-tools:Ask",
+                            "version": 2,
+                            "parameters": {
+                                "model": "small",
+                                "makeConnectionId": 8420592
+                            },
+                            "mapper": {
+                                "input": "\"Eres un asistente ejecutivo impecable. Tu trabajo es leer este bloque de correos y devolver un resumen estructurado con los siguientes bloques enumerados: 1. Urgente, 2. Informativo, 3. Ignorable. Sé directo, en cada uno de los bloques usa una bulleted list. Si en alguno de los bloques no hay correos que correspondan a esa categoría, pon textualmente: 'Ninguno hoy'. Añade emojis para visibilidad. Al final del mensaje desea un gran día\"\n{{`22`}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 767,
+                                    "y": 419
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "model": {
+                                            "mode": "chose",
+                                            "label": "SmallModel: gpt-5-nano. Reasoning: minimal. Efficiently handles long conversations and reasoning, delivering smart conclusions quickly",
+                                            "nested": []
+                                        },
+                                        "makeConnectionId": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "ai-provider"
+                                            },
+                                            "label": "Make's AI Provider (default)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "makeConnectionId",
+                                        "type": "account:ai-provider,openai-gpt-3,anthropic-claude,gemini-ai-q9zyjp,ai-agent-foundry-openai,ai-agent-foundry-non-openai,mistral-ai,cohere,groq,ai-agent-xai,amazon-bedrock,ai-agent-openai-compatible",
+                                        "label": "Connection",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "model",
+                                        "type": "select",
+                                        "label": "Model",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "input",
+                                        "type": "text",
+                                        "label": "Text",
+                                        "required": true
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 25,
+                            "module": "telegram:SendReplyMessage",
+                            "version": 1,
+                            "parameters": {
+                                "__IMTCONN__": 8691006
+                            },
+                            "mapper": {
+                                "text": "{{24.answer}}",
+                                "chatId": "{{23.key}}",
+                                "parseMode": "",
+                                "replyMarkup": "",
+                                "messageThreadId": "",
+                                "replyToMessageId": "",
+                                "replyMarkupAssembleType": "reply_markup_enter"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1092,
+                                    "y": 416
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "parseMode": {
+                                            "label": "Empty"
+                                        },
+                                        "disableNotification": {
+                                            "mode": "chose"
+                                        },
+                                        "replyMarkupAssembleType": {
+                                            "label": "Enter the Reply Markup"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "telegram"
+                                            },
+                                            "label": "Visto. Bot Connection"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:telegram",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "chatId",
+                                        "type": "text",
+                                        "label": "Chat ID",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "text",
+                                        "type": "text",
+                                        "label": "Text",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "messageThreadId",
+                                        "type": "number",
+                                        "label": "Message Thread ID"
+                                    },
+                                    {
+                                        "name": "parseMode",
+                                        "type": "select",
+                                        "label": "Parse Mode",
+                                        "validate": {
+                                            "enum": [
+                                                "Markdown",
+                                                "HTML"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "disableNotification",
+                                        "type": "boolean",
+                                        "label": "Disable Notifications"
+                                    },
+                                    {
+                                        "name": "disableWebPagePreview",
+                                        "type": "boolean",
+                                        "label": "Disable Link Previews"
+                                    },
+                                    {
+                                        "name": "replyToMessageId",
+                                        "type": "number",
+                                        "label": "Original Message ID"
+                                    },
+                                    {
+                                        "name": "replyMarkupAssembleType",
+                                        "type": "select",
+                                        "label": "Enter/Assemble the Reply Markup Field",
+                                        "validate": {
+                                            "enum": [
+                                                "reply_markup_enter",
+                                                "reply_markup_assemble"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "replyMarkup",
+                                        "type": "text",
+                                        "label": "Reply Markup"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu1.make.com",
+        "notes": []
+    }
+}
